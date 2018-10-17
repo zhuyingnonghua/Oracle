@@ -13,4 +13,7 @@ where d.department_id = e.department_id
 and d.department_name in ('IT'，'Sales')
 GROUP BY department_name;
 ---
+优化前
 ![解释计划一](./计划1.png)
+优化后
+![解释计划一](./计划2.png)
