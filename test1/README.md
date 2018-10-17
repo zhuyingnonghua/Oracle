@@ -6,10 +6,11 @@
 - 设计自己的查询语句，并作相应的分析，查询语句不能太简单。
 
 查询1：
-'' SELECT d.department_name，count(e.job_id)as "部门总人数"，
+``` sql SELECT d.department_name，count(e.job_id)as "部门总人数"，
 avg(e.salary)as "平均工资"
 from hr.departments d，hr.employees e
 where d.department_id = e.department_id
 and d.department_name in ('IT'，'Sales')
-GROUP BY department_name; ''
+GROUP BY department_name; ``` 
+
 ![](./计划1.png)
