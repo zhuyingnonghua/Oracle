@@ -18,11 +18,12 @@ GROUP BY department_name;
 ![解释计划1-1](./计划1.png)  
 + 优化后  
 ![解释计划1-2](./计划2.png)  
-查询2：    
+查询2：
 ```sql 
 SELECT d.department_name，count(e.job_id)as "部门总人数"，
 avg(e.salary)as "平均工资"
 FROM hr.departments d，hr.employees e
 WHERE d.department_id = e.department_id
 GROUP BY department_name
-HAVING d.department_name in ('IT'，'Sales');```
+HAVING d.department_name in ('IT'，'Sales');
+```
