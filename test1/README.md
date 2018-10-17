@@ -44,7 +44,7 @@ SELECT department_name, count(job_id) as "部门总人数",
  USING (department_id)
 GROUP BY department_name;
 ```
-####2.1 自定义的查询语句分析：
+### 2.1 自定义的查询语句分析：
 - 自定义的查询语句中首先执行id查询d.department_id = e.department_id， join 用于根据两个或多个表中的列之间的关系,从这些表中查询符合department_name='IT'和department_name='Sales'的部门的条件，通过avg函数求出职工的平均工资，通过count函数求出部门的总人数。
 ## 3、语句的执行结果分析：
 
