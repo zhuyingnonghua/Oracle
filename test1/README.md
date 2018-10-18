@@ -16,10 +16,10 @@ GROUP BY department_name;
 ```
 + 优化指导后的详细信息  
 ![解释计划1-1](./计划1.png)  
-![解释计划1-2](./计划2.png) 
-+所用时间  
-![查询1所用时间](./01.png) 
-查询2：
+![解释计划1-2](./计划2.png)   
++ 所用时间  
+![查询1所用时间](./01.png)  
+查询2：  
 ```sql 
 SELECT d.department_name，count(e.job_id)as "部门总人数"，
 avg(e.salary)as "平均工资"
@@ -28,11 +28,11 @@ WHERE d.department_id = e.department_id
 GROUP BY department_name
 HAVING d.department_name in ('IT'，'Sales');
 ```
-+ 优化指导后的详细信息  
-+ [解释计划2-1](./计划2-1.png) 
-+所用时间  
-![查询2所用时间](./02.png) 
-### 1.1 教材中的查询语句分析：
++ 优化指导后的详细信息    
+![解释计划2-1](./计划2-1.png)  
++ 所用时间  
+![查询2所用时间](./02.png)   
+### 1.1 教材中的查询语句分析：  
 - 查询1中，通过avg函数求出职工的平均工资，通过count函数求出部门的总人数，用where子句和group by子句一起使用，分组查询可以消除非限定行的标准where子句d.department_id = e.department_id   and d.department_name in ('IT'，'Sales')，从而查询到两个部门('IT'和'Sales')的部门总人数和平均工资。
 - 查询2中，也一样通过avg函数求出职工的平均工资，通过count函数求出部门的总人数，不同的是在group by子句之后使用having子句，限定条件d.department_name in ('IT'，'Sales')进行分组，这样系统仅对满足条件的组返回结果，having和where类似，唯一的差别是where过滤行，having过滤组。
 ## 2、自定义的查询语句：
