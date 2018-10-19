@@ -51,7 +51,7 @@ GROUP BY department_name;
 + 优化指导后的详细信息    
 ![解释计划3-1](./3-1.png)   
 + 所用时间   
-![查询3所用时间](./3 .png)  
+![查询3所用时间](./3.png)  
 ### 2.1 自定义的查询语句分析：
 - 自定义的查询语句中首先执行id查询d.department_id = e.department_id， join 用于根据两个或多个表中的列之间的关系,从这些表中查询符合department_name='IT'和department_name='Sales'的部门的条件，通过avg函数求出职工的平均工资，通过count函数求出部门的总人数。
 
