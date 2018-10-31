@@ -7,16 +7,25 @@ Oracle有一个开发者角色resource，可以创建表、过程、触发器等
 - 最后测试：用新用户new_xh连接数据库、创建表，插入数据，创建视图，查询表和视图的数据。
 ## 实验步骤
 #### 第1步：以system登录到pdborcl，创建角色con_res_xh和用户new_xh，并授权和分配空间：
+- 创建角色"con_res_xh"
 ```sql
 $ sqlplus system/123@pdborcl
 SQL> CREATE ROLE con_res_xh;
-Role created.
+```
+- 给角色授权
+```sql
 SQL> GRANT connect,resource,CREATE VIEW TO con_res_xh;
-Grant succeeded.
+```
+- 创建用户"new_xh"
+```sql
 SQL> CREATE USER new_xh IDENTIFIED BY 123 DEFAULT TABLESPACE users TEMPORARY TABLESPACE temp;
-User created.
+```
+- 给用户分配表空间，设置限额为50M
+```sql
 SQL> ALTER USER new_xh QUOTA 50M ON users;
-User altered.
+```
+- 给用户授予con_res_xh角色
+```sql
 SQL> GRANT con_res_xh TO new_xh;
 Grant succeeded.
 SQL> exit
