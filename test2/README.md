@@ -9,15 +9,15 @@ Oracle有一个开发者角色resource，可以创建表、过程、触发器等
 - 第1步：以system登录到pdborcl，创建角色con_res_xh和用户new_xh，并授权和分配空间：
 ```sql
 $ sqlplus system/123@pdborcl
-SQL> CREATE ROLE con_res_views;
+SQL> CREATE ROLE con_res_xh;
 Role created.
-SQL> GRANT connect,resource,CREATE VIEW TO con_res_views;
+SQL> GRANT connect,resource,CREATE VIEW TO con_res_xh;
 Grant succeeded.
-SQL> CREATE USER new_users IDENTIFIED BY 123 DEFAULT TABLESPACE users TEMPORARY TABLESPACE temp;
+SQL> CREATE USER new_xh IDENTIFIED BY 123 DEFAULT TABLESPACE users TEMPORARY TABLESPACE temp;
 User created.
-SQL> ALTER USER new_users QUOTA 50M ON users;
+SQL> ALTER USER new_xh QUOTA 50M ON users;
 User altered.
-SQL> GRANT con_res_views TO new_user;
+SQL> GRANT con_res_xh TO new_xh;
 Grant succeeded.
 SQL> exit
 ```
@@ -27,9 +27,9 @@ SQL> exit
 - 第2步：新用户new_xh连接到pdborcl，创建表mytable和视图myview，插入数据，最后将myview的SELECT对象权限授予hr用户。
 
 ```sql
-$ sqlplus new_user/123@pdborcl
+$ sqlplus new_xh/123@pdborcl
 SQL> show user;
-USER is "NEW_USER"
+USER is "NEW_XH"
 SQL> CREATE TABLE mytable (id number,name varchar(50));
 Table created.
 SQL> INSERT INTO mytable(id,name)VALUES(1,'zhang');
@@ -52,7 +52,7 @@ SQL>exit
 
 ```sql
 $ sqlplus hr/123@pdborcl
-SQL> SELECT * FROM new_user.myview;
+SQL> SELECT * FROM new_xh.myview;
 NAME
 --------------------------------------------------
 zhang
