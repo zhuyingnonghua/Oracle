@@ -47,7 +47,7 @@ SQL> GRANT SELECT ON myview TO hr;
 Grant succeeded.
 SQL>exit
 ```
-![shiyan2-2](./shiyan2-2)
+![shiyan2-2](./shiyan2-2.png)
 - 第3步：用户hr连接到pdborcl，查询new_user授予它的视图myview
 
 ```sql
@@ -59,7 +59,7 @@ zhang
 wang
 SQL> exit
 ```
-![shiyan2-3](./shiyan2-3)
+![shiyan2-3](./shiyan2-3.png)
 ## 数据库和表空间占用分析
 ## 查看数据库的使用情况
 
