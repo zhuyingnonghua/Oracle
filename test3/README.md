@@ -1,7 +1,7 @@
 # 实验3：创建分区表
 
-## 实验目的：
-
+## 实验目的：  
+ 
 掌握分区表的创建方法，掌握各种分区方式的使用场景。
 
 ## 实验内容：
@@ -16,16 +16,16 @@
 
 【示例8-11】在主表orders和从表order_details之间建立引用分区
 在study用户中创建两个表：orders（订单表）和order_details（订单详表），两个表通过列order_id建立主外键关联。orders表按范围分区进行存储，order_details使用引用分区进行存储。
-分配权限语句是：
+分配权限语句是：   
 ```
 alter user new_xh quota 50M on users02;
 alter user new_xh quota 50M on users03;
 ```
-执行结果：
+执行结果：   
 ![分配权限](./img/分配权限.png)<br>  
-order分区情况结果：
+order分区情况结果：   
 ![order分区情况](./img/order分区情况.png)<br> 
-创建orders表的部分语句是：
+创建orders表的部分语句是：   
 ```sql
 CREATE TABLE orders 
 (
@@ -70,16 +70,16 @@ NOLOGGING
 TABLESPACE USERS03
 );
 ```
-执行结果：
+执行结果：  
 ![建立order表](./img/建立order表.png)<br>  
-建立外键约束语句：
+建立外键约束语句：  
 ```
 alter table orders add primary key(order_id);
 ```
-执行结果：
+执行结果：  
 ![建立外键约束](./img/建立外键约束.png)<br>  
 
-创建order_details表的部分语句如下：
+创建order_details表的部分语句如下：  
 ```sql
 CREATE TABLE order_details 
 (
@@ -142,14 +142,14 @@ TABLESPACE USERS03
 NOCOMPRESS NO INMEMORY 
 );
 
-```
-执行结果：
+``` 
+执行结果：  
 ![创建order_details表](./img/建立详情表.png)<br>  
 
-详情表分区：
+详情表分区：  
 ![详情表分区](./img/详情表分区.png)<br>  
 
-插入数据
+插入数据   
 ```
 begin
 for i in 1..4000
@@ -160,23 +160,23 @@ end loop;
 end;
 /
 ```
-执行结果：
+执行结果：  
 ![插入数据](./img/插入数据.png)<br>  
-插入数据优化指导：
+插入数据优化指导：  
 ![插入数据优化指导](./img/插入数据优化指导.png)<br> 
-查询结果
+查询结果:   
 ![查询结果](./img/查询结果行.png)<br>
 
 
 
-联合查询：
+联合查询：  
 ![联合查询](./img/联合查询.png)<br> 
-联合查询执行：
+联合查询执行：  
 ![联合查询执行计划](./img/联合查询执行计划.png)<br> 
-联合查询优化指导：
+联合查询优化指导：  
 ![联合查询优化指导](./img/联合查询优化指导.png)<br> 
-
-分配查询计划权限：
+ 
+分配查询计划权限：  
 ![分配查询计划权限](./img/分配查询计划权限.png)<br> 
  
 
