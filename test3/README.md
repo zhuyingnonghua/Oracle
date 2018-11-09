@@ -16,13 +16,16 @@
 
 【示例8-11】在主表orders和从表order_details之间建立引用分区
 在study用户中创建两个表：orders（订单表）和order_details（订单详表），两个表通过列order_id建立主外键关联。orders表按范围分区进行存储，order_details使用引用分区进行存储。
-创建orders表的部分语句是：
+分配权限语句是：
 ```
 alter user new_xh quota 50M on users02;
 alter user new_xh quota 50M on users03;
 ```
+执行结果：
+![分配权限](./img/分配权限.png)<br>  
+order分区情况结果：
+![order分区情况](./img/order分区情况.png)<br> 
 创建orders表的部分语句是：
-
 ```sql
 CREATE TABLE orders 
 (
@@ -67,10 +70,15 @@ NOLOGGING
 TABLESPACE USERS03
 );
 ```
-
+执行结果：
+![建立order表](./img/建立order表.png)<br>  
+建立外键约束语句：
 ```
 alter table orders add primary key(order_id);
 ```
+执行结果：
+![建立外键约束](./img/建立外键约束.png)<br>  
+
 创建order_details表的部分语句如下：
 ```sql
 CREATE TABLE order_details 
@@ -135,8 +143,13 @@ NOCOMPRESS NO INMEMORY
 );
 
 ```
-插入数据
+执行结果：
+![创建order_details表](./img/建立详情表.png)<br>  
 
+详情表分区：
+![详情表分区](./img/详情表分区.png)<br>  
+
+插入数据
 ```
 begin
 for i in 1..4000
@@ -147,7 +160,25 @@ end loop;
 end;
 /
 ```
+执行结果：
+![插入数据](./img/插入数据.png)<br>  
+插入数据优化指导：
+![插入数据优化指导](./img/插入数据优化指导.png)<br> 
+查询结果
+![查询结果](./img/查询结果行.png)<br>
 
 
-##分区不分区的区别
+
+联合查询：
+![联合查询](./img/联合查询.png)<br> 
+联合查询执行：
+![联合查询执行计划](./img/联合查询执行计划.png)<br> 
+联合查询优化指导：
+![联合查询优化指导](./img/联合查询优化指导.png)<br> 
+
+分配查询计划权限：
+![分配查询计划权限](./img/分配查询计划权限.png)<br> 
+ 
+
+## 分区不分区的区别
 当表中的数据量不断增大时，查询数据的速度就会变慢，应用程序的性能就会下降，这是就应该考虑对表进行分区。表进行分区后，逻辑上仍然是一张完整的表，只是将表中的数据在物理上存放到多个表空间（物理文件上），这样查询数据时，不至于每次都扫描整张表。在这次实验中，采用了范围分区，分区键采用了日期。 并且在oracle中提供了强大的分区表维护操作，分区后在数据被破坏时易于维护
