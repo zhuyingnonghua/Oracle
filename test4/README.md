@@ -26,22 +26,99 @@
 
 ## 表结构
 
-- 部门表DEPARTMENTS,表空间：USERS
+- 1、部门表DEPARTMENTS,表空间：USERS
 
 |编号|字段名|数据类型|可以为空|注释|
 |---|---|---|---|---|
 |1|DEPARTMENT_ID|NUMBER(6,0)|NO|部门ID，主键|
 |2|DEPARTMENT_NAME|VARCHAR2(40 BYTE)|NO|部门名称，非空|
+- 创建部门表DEPARTMENTS语句
+```sql
+CREATE TABLE DEPARTMENTS
+(
+  DEPARTMENT_ID NUMBER(6, 0) NOT NULL
+, DEPARTMENT_NAME VARCHAR2(40 BYTE) NOT NULL
+, CONSTRAINT DEPARTMENTS_PK PRIMARY KEY
+  (
+    DEPARTMENT_ID
+  )
+  USING INDEX
+  (
+      CREATE UNIQUE INDEX DEPARTMENTS_PK ON DEPARTMENTS (DEPARTMENT_ID ASC)
+      NOLOGGING
+      TABLESPACE USERS
+      PCTFREE 10
+      INITRANS 2
+      STORAGE
+      (
+        INITIAL 65536
+        NEXT 1048576
+        MINEXTENTS 1
+        MAXEXTENTS UNLIMITED
+        BUFFER_POOL DEFAULT
+      )
+      NOPARALLEL
+  )
+  ENABLE
+)
+NOLOGGING
+TABLESPACE USERS
+PCTFREE 10
+INITRANS 1
+STORAGE
+(
+  INITIAL 65536
+  NEXT 1048576
+  MINEXTENTS 1
+  MAXEXTENTS UNLIMITED
+  BUFFER_POOL DEFAULT
+)
+NOCOMPRESS NO INMEMORY NOPARALLEL;
+```
+- 执行结果  
+![创建部门表](./img/创建部门表.png)<br>
 
-- 产品表PRODUCTS,表空间：USERS
-
+- 2、产品表PRODUCTS,表空间：USERS
 |编号|字段名|数据类型|可以为空|注释|
 |---|---|---|---|---|
 |1|PRODUCT_NAME|VARCHAR2(40 BYTE)|NO|产品名称，产品表的主键|
 |2|PRODUCT_TYPE|VARCHAR2(40 BYTE)|NO|产品类型，只能取值：耗材,手机,电脑|
+- 创建产品表PRODUCTS语句
+```sql
+CREATE TABLE PRODUCTS
+(
+  PRODUCT_NAME VARCHAR2(40 BYTE) NOT NULL
+, PRODUCT_TYPE VARCHAR2(40 BYTE) NOT NULL
+, CONSTRAINT PRODUCTS_PK PRIMARY KEY
+  (
+    PRODUCT_NAME
+  )
+  ENABLE
+)
+LOGGING
+TABLESPACE "USERS"
+PCTFREE 10
+INITRANS 1
+STORAGE
+(
+  INITIAL 65536
+  NEXT 1048576
+  MINEXTENTS 1
+  MAXEXTENTS 2147483645
+  BUFFER_POOL DEFAULT
+);
+
+ALTER TABLE PRODUCTS
+ADD CONSTRAINT PRODUCTS_CHK1 CHECK
+(PRODUCT_TYPE IN ('耗材', '手机', '电脑'))
+ENABLE;
+```
+- 执行结果  
+![创建产品表](./img/创建产品表.png)<br>
 
 
-- 员工表EMPLOYEES,表空间：USERS
+
+- 3、员工表EMPLOYEES,表空间：USERS
 
 |编号|字段名|数据类型|可以为空|注释|
 |---|---|---|---|---|
@@ -54,8 +131,78 @@
 |7|MANAGER_ID|NUMBER(6,0)|YES|员工的上司，是员工表EMPOLYEE_ID的外键，MANAGER_ID不能等于EMPLOYEE_ID,即员工的领导不能是自己。主键删除时MANAGER_ID设置为空值。|
 |8|DEPARTMENT_ID|NUMBER(6,0)|YES|员工所在部门，是部门表DEPARTMENTS的外键|
 |9|PHOTO|BLOB|YES|员工照片
+- 创建员工表EMPLOYEES语句
+```sql
+CREATE TABLE EMPLOYEES
+(
+  EMPLOYEE_ID NUMBER(6, 0) NOT NULL
+, NAME VARCHAR2(40 BYTE) NOT NULL
+, EMAIL VARCHAR2(40 BYTE)
+, PHONE_NUMBER VARCHAR2(40 BYTE)
+, HIRE_DATE DATE NOT NULL
+, SALARY NUMBER(8, 2)
+, MANAGER_ID NUMBER(6, 0)
+, DEPARTMENT_ID NUMBER(6, 0)
+, PHOTO BLOB
+, CONSTRAINT EMPLOYEES_PK PRIMARY KEY
+  (
+    EMPLOYEE_ID
+  )
+  USING INDEX
+  (
+      CREATE UNIQUE INDEX EMPLOYEES_PK ON EMPLOYEES (EMPLOYEE_ID ASC)
+      NOLOGGING
+      TABLESPACE USERS
+      PCTFREE 10
+      INITRANS 2
+      STORAGE
+      (
+        INITIAL 65536
+        NEXT 1048576
+        MINEXTENTS 1
+        MAXEXTENTS UNLIMITED
+        BUFFER_POOL DEFAULT
+      )
+      NOPARALLEL
+  )
+  ENABLE
+)
+NOLOGGING
+TABLESPACE USERS
+PCTFREE 10
+INITRANS 1
+STORAGE
+(
+  INITIAL 65536
+  NEXT 1048576
+  MINEXTENTS 1
+  MAXEXTENTS UNLIMITED
+  BUFFER_POOL DEFAULT
+)
+NOCOMPRESS
+NO INMEMORY
+NOPARALLEL
+LOB (PHOTO) STORE AS SYS_LOB0000092017C00009$$
+(
+  ENABLE STORAGE IN ROW
+  CHUNK 8192
+  NOCACHE
+  NOLOGGING
+  TABLESPACE USERS
+  STORAGE
+  (
+    INITIAL 106496
+    NEXT 1048576
+    MINEXTENTS 1
+    MAXEXTENTS UNLIMITED
+    BUFFER_POOL DEFAULT
+  )
+);
+```
+- 执行结果  
+![创建员工表](./img/创建员工表.png)<br>
 
-- 订单表ORDERS, 表空间：分区表：USERS,USERS02
+- 4、订单表ORDERS, 表空间：分区表：USERS,USERS02
 
 |编号|字段名|数据类型|可以为空|注释|
 |---|---|---|---|---|
@@ -66,8 +213,11 @@
 |5|EMPLOYEE_ID|NUMBER(6,0)|NO|订单经手人，员工表EMPLOYEES的外键|
 |6|DISCOUNT|Number(8,2)|YES|订单整体优惠金额。默认值为0|
 |7|TRADE_RECEIVABLE|Number(8,2)|YES|订单应收货款，默认为0，Trade_Receivable= sum(订单详单表.Product_Num*订单详单表.Product_Price)- Discount|
+- 创建订单表ORDERS执行结果
+![创建订单表](./img/创建订单表.png)<br>
 
-- 订单详单表ORDER_DETAILS, 表空间：分区表：USERS,USERS02，分区参照ORDERS表。
+
+- 5、订单详单表ORDER_DETAILS, 表空间：分区表：USERS,USERS02，分区参照ORDERS表。
 
 |编号|字段名|数据类型|可以为空|注释|
 |---|---|---|---|---|
@@ -76,6 +226,65 @@
 |4|PRODUCT_NAME|VARCHAR2(40 BYTE)|NO|产品名称, 是产品表PRODUCTS的外键|
 |5|PRODUCT_NUM|NUMBER(8,2)|NO|产品销售数量，必须>0|
 |6|PRODUCT_PRICE|NUMBER(8,2)|NO|产品销售价格|
+- 创建订单详表ORDERS执行结果
+![创建订单详表](./img/创建订单详表.png)<br>
 
+- 创建3个触发器
+```sql
+CREATE OR REPLACE EDITIONABLE TRIGGER "ORDERS_TRIG_ROW_LEVEL"
+BEFORE INSERT OR UPDATE OF DISCOUNT ON "ORDERS"
+FOR EACH ROW --行级触发器
+declare
+  m number(8,2);
+BEGIN
+  if inserting then
+       :new.TRADE_RECEIVABLE := - :new.discount;
+  else
+      select sum(PRODUCT_NUM*PRODUCT_PRICE) into m from ORDER_DETAILS where ORDER_ID=:old.ORDER_ID;
+      if m is null then
+        m:=0;
+      end if;
+      :new.TRADE_RECEIVABLE := m - :new.discount;
+  end if;
+END;
+/
+```
+
+- 插入DEPARTMENTS，EMPLOYEES数据
+```sql
+INSERT INTO DEPARTMENTS(DEPARTMENT_ID,DEPARTMENT_NAME) values (1,'总经办');
+INSERT INTO EMPLOYEES(EMPLOYEE_ID,NAME,EMAIL,PHONE_NUMBER,HIRE_DATE,SALARY,MANAGER_ID,DEPARTMENT_ID)
+  VALUES (1,'李董事长',NULL,NULL,to_date('2010-1-1','yyyy-mm-dd'),50000,NULL,1);
+
+INSERT INTO DEPARTMENTS(DEPARTMENT_ID,DEPARTMENT_NAME) values (11,'销售部1');
+INSERT INTO EMPLOYEES(EMPLOYEE_ID,NAME,EMAIL,PHONE_NUMBER,HIRE_DATE,SALARY,MANAGER_ID,DEPARTMENT_ID)
+  VALUES (11,'张总',NULL,NULL,to_date('2010-1-1','yyyy-mm-dd'),50000,1,1);
+INSERT INTO EMPLOYEES(EMPLOYEE_ID,NAME,EMAIL,PHONE_NUMBER,HIRE_DATE,SALARY,MANAGER_ID,DEPARTMENT_ID)
+  VALUES (111,'吴经理',NULL,NULL,to_date('2010-1-1','yyyy-mm-dd'),50000,11,11);
+INSERT INTO EMPLOYEES(EMPLOYEE_ID,NAME,EMAIL,PHONE_NUMBER,HIRE_DATE,SALARY,MANAGER_ID,DEPARTMENT_ID)
+  VALUES (112,'白经理',NULL,NULL,to_date('2010-1-1','yyyy-mm-dd'),50000,11,11);
+
+INSERT INTO DEPARTMENTS(DEPARTMENT_ID,DEPARTMENT_NAME) values (12,'销售部2');
+INSERT INTO EMPLOYEES(EMPLOYEE_ID,NAME,EMAIL,PHONE_NUMBER,HIRE_DATE,SALARY,MANAGER_ID,DEPARTMENT_ID)
+  VALUES (12,'王总',NULL,NULL,to_date('2010-1-1','yyyy-mm-dd'),50000,1,1);
+INSERT INTO EMPLOYEES(EMPLOYEE_ID,NAME,EMAIL,PHONE_NUMBER,HIRE_DATE,SALARY,MANAGER_ID,DEPARTMENT_ID)
+  VALUES (121,'赵经理',NULL,NULL,to_date('2010-1-1','yyyy-mm-dd'),50000,12,12);
+INSERT INTO EMPLOYEES(EMPLOYEE_ID,NAME,EMAIL,PHONE_NUMBER,HIRE_DATE,SALARY,MANAGER_ID,DEPARTMENT_ID)
+  VALUES (122,'刘经理',NULL,NULL,to_date('2010-1-1','yyyy-mm-dd'),50000,12,12);
+
+
+insert into products (product_name,product_type) values ('computer1','电脑');
+insert into products (product_name,product_type) values ('computer2','电脑');
+insert into products (product_name,product_type) values ('computer3','电脑');
+
+insert into products (product_name,product_type) values ('phone1','手机');
+insert into products (product_name,product_type) values ('phone2','手机');
+insert into products (product_name,product_type) values ('phone3','手机');
+
+insert into products (product_name,product_type) values ('paper1','耗材');
+insert into products (product_name,product_type) values ('paper2','耗材');
+insert into products (product_name,product_type) values ('paper3','耗材');
+```
+![插入部门和员工数据](./img/插入部门和员工数据.png)<br>
 - 数据关系图如下
 ![](./img/orders.png)
