@@ -26,7 +26,7 @@
 
 ## 表结构
 
-- 1、部门表DEPARTMENTS,表空间：USERS
+1、部门表DEPARTMENTS,表空间：USERS
 
 |编号|字段名|数据类型|可以为空|注释|
 |---|---|---|---|---|
@@ -78,7 +78,7 @@ NOCOMPRESS NO INMEMORY NOPARALLEL;
 - 执行结果  
 ![创建部门表](./img/创建部门表.png)<br>
 
-- 2、产品表PRODUCTS,表空间：USERS
+2、产品表PRODUCTS,表空间：USERS
 |编号|字段名|数据类型|可以为空|注释|
 |---|---|---|---|---|
 |1|PRODUCT_NAME|VARCHAR2(40 BYTE)|NO|产品名称，产品表的主键|
@@ -118,7 +118,7 @@ ENABLE;
 
 
 
-- 3、员工表EMPLOYEES,表空间：USERS
+3、员工表EMPLOYEES,表空间：USERS
 
 |编号|字段名|数据类型|可以为空|注释|
 |---|---|---|---|---|
@@ -202,7 +202,7 @@ LOB (PHOTO) STORE AS SYS_LOB0000092017C00009$$
 - 执行结果  
 ![创建员工表](./img/创建员工表.png)<br>
 
-- 4、订单表ORDERS, 表空间：分区表：USERS,USERS02
+4、订单表ORDERS, 表空间：分区表：USERS,USERS02
 
 |编号|字段名|数据类型|可以为空|注释|
 |---|---|---|---|---|
@@ -217,7 +217,7 @@ LOB (PHOTO) STORE AS SYS_LOB0000092017C00009$$
 ![创建订单表](./img/创建订单表.png)<br>
 
 
-- 5、订单详单表ORDER_DETAILS, 表空间：分区表：USERS,USERS02，分区参照ORDERS表。
+5、订单详单表ORDER_DETAILS, 表空间：分区表：USERS,USERS02，分区参照ORDERS表。
 
 |编号|字段名|数据类型|可以为空|注释|
 |---|---|---|---|---|
@@ -229,7 +229,7 @@ LOB (PHOTO) STORE AS SYS_LOB0000092017C00009$$
 - 创建订单详表ORDERS执行结果
 ![创建订单详表](./img/创建订单详表.png)<br>
 
-- 创建3个触发器
+6、创建3个触发器
 ```sql
 CREATE OR REPLACE EDITIONABLE TRIGGER "ORDERS_TRIG_ROW_LEVEL"
 BEFORE INSERT OR UPDATE OF DISCOUNT ON "ORDERS"
@@ -286,5 +286,73 @@ insert into products (product_name,product_type) values ('paper2','耗材');
 insert into products (product_name,product_type) values ('paper3','耗材');
 ```
 ![插入部门和员工数据](./img/插入部门和员工数据.png)<br>
-- 数据关系图如下
-![](./img/orders.png)
+7、查询某个员工的信息<br>
+SQL语句：
+```
+select * from ORDERS where  order_id=1;
+select * from ORDER_DETAILS where  order_id=1;
+select * from VIEW_ORDER_DETAILS where order_id=1;
+```
+8、递归查询某个员工及其所有下属，子下属员工。<br>
+SQL语句：
+```
+--2.递归查询某个员工及其所有下属，子下属员工。
+WITH A (EMPLOYEE_ID,NAME,EMAIL,PHONE_NUMBER,HIRE_DATE,SALARY,MANAGER_ID,DEPARTMENT_ID) AS
+  (SELECT EMPLOYEE_ID,NAME,EMAIL,PHONE_NUMBER,HIRE_DATE,SALARY,MANAGER_ID,DEPARTMENT_ID
+    FROM employees WHERE employee_ID = 11
+    UNION ALL
+  SELECT B.EMPLOYEE_ID,B.NAME,B.EMAIL,B.PHONE_NUMBER,B.HIRE_DATE,B.SALARY,B.MANAGER_ID,B.DEPARTMENT_ID
+    FROM A, employees B WHERE A.EMPLOYEE_ID = B.MANAGER_ID)
+SELECT * FROM A;
+--或者
+SELECT * FROM employees START WITH EMPLOYEE_ID = 11 CONNECT BY PRIOR EMPLOYEE_ID = MANAGER_ID;
+```
+9、查询订单表，并且包括订单的订单应收货款: Trade_Receivable= sum(订单详单表.ProductNum*订单详单表.ProductPrice)- Discount。<br>
+SQL语句：
+```
+--查询订单表，并且包括订单的订单应收货款: Trade_Receivable= sum(订单详单表.ProductNum*订单详单表.ProductPrice)- Discount。
+select a.*,
+  (
+    select sum(b.product_num*b.product_price)
+    from order_details b
+    where b.order_id=c.order_id
+    group by b.order_id
+   )-a.discount as "应收货款"
+from orders a,order_details c
+where a.order_id=c.order_id;
+
+```
+10、查询订单详表，要求显示订单的客户名称和客户电话，产品类型用汉字描述。<br>
+SQL语句：<br>
+```
+--4.查询订单详表，要求显示订单的客户名称和客户电话，产品类型用汉字描述。
+select c.product_type as "产品类型",a.customer_name,a.customer_tel
+from orders a,order_details b,products c
+where a.order_id=b.order_id and b.product_name=c.product_name;
+```
+11、查询出所有空订单，即没有订单详单的订单。<br>
+SQL语句：<br>
+```
+select a.*
+from orders a left join order_details b
+on a.order_id=b.order_id
+where b.order_id is null;
+```
+12、查询部门表，同时显示部门的负责人姓名。<br>
+SQL语句：<br>
+```
+select a.*,b.name as "负责人"
+from departments a,employees b
+where a.department_id=b.department_id; 
+```
+13、查询部门表，统计每个部门的销售总金额。<br>
+SQL语句：<br>
+```
+select a.department_name,
+    (select sum(c.Trade_Receivable)
+     from orders c 
+     where c.employee_id=d.employee_id group by c.employee_id)as "销售总额"
+from departments a,employees b,orders d
+where a.department_id=b.department_id
+and d.employee_id=b.employee_id;
+```
